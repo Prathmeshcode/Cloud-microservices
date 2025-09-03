@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Microservices Architecture | KalaGoon Cloud Solutions</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="assets/microservices.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="fas fa-cloud me-2"></i>CloudOps Dashboard
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-shield"></i> DevOps Admin
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-cogs me-2"></i>Cluster Config</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-download me-2"></i>Export Logs</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+                <a class="nav-link" href="https://github.com/prathmeshcode/cloud-microservices" target="_blank">
+                    <i class="fab fa-github"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container-fluid py-4">
+        <!-- Header Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="dashboard-header">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h2 class="fw-bold mb-1">
+                                <i class="fas fa-cubes me-2 text-primary"></i>
+                                Microservices Architecture Dashboard
+                            </h2>
+                            <p class="text-muted mb-0">
+                                <i class="fas fa-server me-2"></i>Kubernetes Cluster: production-cluster-01
+                                <span class="badge bg-success ms-2">
+                                    <i class="fas fa-circle pulse"></i> All Services Healthy
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <div class="cluster-info">
+                                <small class="text-muted">Last Updated:</small><br>
+                                <span class="fw-bold" id="lastUpdated"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Architecture Overview -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="architecture-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-sitemap me-2"></i>Microservices Architecture Overview
+                        </h5>
+                        <div class="architecture-controls">
+                            <button class="btn btn-sm btn-outline-primary" onclick="refreshServices()">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                            <button class="btn btn-sm btn-primary" onclick="showArchitecture()">
+                                <i class="fas fa-eye"></i> View Diagram
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <div class="services-grid" id="servicesGrid">
+                                    <!-- Services will be loaded here -->
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="cluster-stats">
+                                    <h6 class="fw-bold mb-3">
+                                        <i class="fas fa-chart-pie me-2"></i>Cluster Statistics
+                                    </h6>
+                                    <div class="stat-item">
+                                        <div class="stat-icon bg-primary">
+                                            <i class="fas fa-cube"></i>
+                                        </div>
+                                        <div class="stat-content">
+                                            <span class="stat-value">12</span>
+                                            <span class="stat-label">Active Services</span>
+                                        </div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-icon bg-success">
+                                            <i class="fas fa-server"></i>
+                                        </div>
+                                        <div class="stat-content">
+                                            <span class="stat-value">6</span>
+                                            <span class="stat-label">Healthy Nodes</span>
+                                        </div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-icon bg-info">
+                                            <i class="fas fa-hdd"></i>
+                                        </div>
+                                        <div class="stat-content">
+                                            <span class="stat-value">78%</span>
+                                            <span class="stat-label">CPU Utilization</span>
+                                        </div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-icon bg-warning">
+                                            <i class="fas fa-memory"></i>
+                                        </div>
+                                        <div class="stat-content">
+                                            <span class="stat-value">64%</span>
+                                            <span class="stat-label">Memory Usage</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Service Health Monitoring -->
+        <div class="row mb-4">
+            <div class="col-lg-8">
+                <div class="monitoring-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-heartbeat me-2"></i>Service Health Monitoring
+                        </h5>
+                        <div class="monitoring-filters">
+                            <select class="form-select form-select-sm" style="width: auto;" onchange="filterServices(this.value)">
+                                <option value="all">All Services</option>
+                                <option value="api">API Services</option>
+                                <option value="web">Web Services</option>
+                                <option value="data">Data Services</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Service</th>
+                                        <th>Status</th>
+                                        <th>Instances</th>
+                                        <th>CPU</th>
+                                        <th>Memory</th>
+                                        <th>Uptime</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="servicesTable">
+                                    <!-- Service data will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="api-endpoints-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-link me-2"></i>Live API Endpoints
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="endpoint-list" id="apiEndpoints">
+                            <!-- API endpoints will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="row mb-4">
+            <div class="col-lg-6">
+                <div class="metrics-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-tachometer-alt me-2"></i>Response Time Metrics
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="responseTimeChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="metrics-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-exchange-alt me-2"></i>Request Volume
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="requestVolumeChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Business Impact Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="impact-showcase">
+                    <div class="impact-header">
+                        <h4 class="fw-bold mb-3">
+                            <i class="fas fa-rocket me-2 text-primary"></i>
+                            Business Impact: Cloud Microservices Success Story
+                        </h4>
+                    </div>
+                    
+                    <div class="row align-items-center">
+                        <div class="col-lg-8">
+                            <div class="impact-content">
+                                <blockquote class="blockquote">
+                                    <p class="fs-5">"KalaGoon's microservices architecture transformed our ability to scale and deploy. We went from monthly releases to daily deployments, reduced system downtime from hours to minutes, and can now handle 10x the traffic with automatic scaling. Our development team productivity increased by 300% because they can work independently on different services."</p>
+                                    <footer class="blockquote-footer mt-3">
+                                        <strong>Amit Sharma</strong> <cite title="Source Title">CTO, FinTech Innovations Ltd.</cite>
+                                    </footer>
+                                </blockquote>
+                                
+                                <div class="row mt-4">
+                                    <div class="col-md-3">
+                                        <div class="impact-metric">
+                                            <h3 class="text-success">99.9%</h3>
+                                            <p class="mb-0">Uptime Achieved</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="impact-metric">
+                                            <h3 class="text-primary">10x</h3>
+                                            <p class="mb-0">Scalability Improvement</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="impact-metric">
+                                            <h3 class="text-info">90%</h3>
+                                            <p class="mb-0">Deployment Time Reduction</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="impact-metric">
+                                            <h3 class="text-warning">50%</h3>
+                                            <p class="mb-0">Infrastructure Cost Savings</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-4 text-center">
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face" 
+                                 alt="CTO" class="rounded-circle mb-3" width="150" height="150">
+                            <div class="contact-cta">
+                                <a href="mailto:prathmeshdhote@gmail.com" class="btn btn-primary">
+                                    <i class="fas fa-envelope me-2"></i>Get Your Architecture
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technology Stack -->
+        <div class="row">
+            <div class="col-12">
+                <div class="tech-stack-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-layer-group me-2"></i>Technology Stack & Architecture
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-md-3">
+                                <div class="tech-category">
+                                    <h6 class="text-primary fw-bold">
+                                        <i class="fas fa-cube me-2"></i>Container Platform
+                                    </h6>
+                                    <div class="tech-tags">
+                                        <span class="badge bg-primary">Docker</span>
+                                        <span class="badge bg-primary">Kubernetes</span>
+                                        <span class="badge bg-primary">Helm Charts</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <div class="tech-category">
+                                    <h6 class="text-success fw-bold">
+                                        <i class="fas fa-cloud me-2"></i>Cloud Services
+                                    </h6>
+                                    <div class="tech-tags">
+                                        <span class="badge bg-success">Azure AKS</span>
+                                        <span class="badge bg-success">AWS EKS</span>
+                                        <span class="badge bg-success">Google GKE</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <div class="tech-category">
+                                    <h6 class="text-info fw-bold">
+                                        <i class="fas fa-code me-2"></i>Development
+                                    </h6>
+                                    <div class="tech-tags">
+                                        <span class="badge bg-info">ASP.NET Core</span>
+                                        <span class="badge bg-info">Node.js</span>
+                                        <span class="badge bg-info">Python Flask</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <div class="tech-category">
+                                    <h6 class="text-warning fw-bold">
+                                        <i class="fas fa-chart-bar me-2"></i>Monitoring
+                                    </h6>
+                                    <div class="tech-tags">
+                                        <span class="badge bg-warning text-dark">Prometheus</span>
+                                        <span class="badge bg-warning text-dark">Grafana</span>
+                                        <span class="badge bg-warning text-dark">ELK Stack</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-3 mt-5">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0">
+                        <strong>Built by KalaGoon Software Solutions Pvt. Ltd.</strong><br>
+                        <small>Cloud-native microservices architecture and DevOps solutions</small>
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="contact-info">
+                        <a href="mailto:prathmeshdhote@gmail.com" class="text-white text-decoration-none me-3">
+                            <i class="fas fa-envelope"></i> prathmeshdhote@gmail.com
+                        </a>
+                        <a href="tel:+919529169879" class="text-white text-decoration-none">
+                            <i class="fas fa-phone"></i> +91 95291 69879
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="assets/microservices.js"></script>
+</body>
+</html>
